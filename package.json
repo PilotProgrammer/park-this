@@ -1,0 +1,28 @@
+{
+  "name": "park-this",
+  "version": "1.0.0",
+  "description": "Real time parking garage application",
+  "main": "index.js",
+  "scripts": {
+    "docker-init": "docker-compose -f docker-compose.yml -p park_this up --build -d --remove-orphans"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/PilotProgrammer/park-this.git"
+  },
+  "author": "PilotProgrammer",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/PilotProgrammer/park-this/issues"
+  },
+  "homepage": "https://github.com/PilotProgrammer/park-this#readme",
+  "devDependencies": {
+    "jest": "^27.0.4",
+    "ts-jest": "^27.0.3",
+    "ts-node": "^10.0.0",
+    "typescript": "^4.3.4"
+  },
+  "dependencies": {
+    "typeorm": "^0.2.34"
+  }
+}
