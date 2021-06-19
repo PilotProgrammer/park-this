@@ -1,0 +1,20 @@
+{
+  "type": "postgres",
+  "host": "localhost",
+  "port": 5432,
+  "username": "user",
+  "password": "pass",
+  "database": "ParkThis",
+  "schema": "public",
+  "entities": [
+    "src/entities/**/!(*.seed.ts)"
+  ],
+  "migrations":  [
+    "src/migrations/**/*.ts"
+  ],
+  "migrationsTableName": "__ddl_update_history",
+  "cli": {
+    "entitiesDir": "src/entities",
+    "migrationsDir": "src/migrations"
+  }
+}
