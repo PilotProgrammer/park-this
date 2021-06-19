@@ -1,9 +1,8 @@
 
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
 import { BaseEntity } from './BaseEntity';
 import { ConsecutiveRow } from './ConsecutiveRow';
 import { Garage } from './Garage';
-import { VehicleType } from './VehicleType';
 
 @Entity("Level")
 export class Level extends BaseEntity {

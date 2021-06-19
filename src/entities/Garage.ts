@@ -1,5 +1,5 @@
 
-import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { Column, Entity, OneToMany } from 'typeorm';
 import { BaseEntity } from './BaseEntity';
 import { Level } from './Level';
 import { VehicleType } from './VehicleType';

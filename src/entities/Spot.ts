@@ -1,10 +1,8 @@
 
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany } from 'typeorm';
+import { Entity, ManyToOne } from 'typeorm';
 import { BaseEntity } from './BaseEntity';
 import { ConsecutiveRow } from './ConsecutiveRow';
-import { Garage } from './Garage';
 import { Vehicle } from './Vehicle';
-import { VehicleType } from './VehicleType';
 
 @Entity("Spot")
 export class Spot extends BaseEntity {
@@ -14,5 +12,4 @@ export class Spot extends BaseEntity {
 
     @ManyToOne(type => Vehicle, vehicle => vehicle.spots, { cascade: true })
     public occupyingVehicle!: Vehicle;
-
 }
