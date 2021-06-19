@@ -1,16 +1,20 @@
 
 import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
 import { BaseEntity } from './BaseEntity';
+import { VehicleType } from './VehicleType';
 
 @Entity("Vehicle")
 export class Vehicle extends BaseEntity {
 
     @Column({ type: "citext"})
-    name?: string;
+    public name?: string;
 
     @Column({ type: "citext"})
-    color?: string;
+    public color?: string;
 
     @Column({ type: "citext"})
-    licensePlateNumber!: string;
+    public licensePlateNumber!: string;
+
+    @Column("enum", { enum: VehicleType })
+    public vehicleType!: VehicleType;
 }
