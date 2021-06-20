@@ -1,14 +1,14 @@
 
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
-import { BaseEntity } from './BaseEntity';
+import { ParkThisBaseEntity } from './ParkThisBaseEntity';
 import { ConsecutiveRow } from './ConsecutiveRow';
 import { Garage } from './Garage';
 
 @Entity("Level")
-export class Level extends BaseEntity {
+export class Level extends ParkThisBaseEntity {
 
-    @Column({ type: "citext"})
-    public index!: string;
+    @Column()
+    public levelNumber!: number;
 
     @ManyToOne(type => Garage, garage => garage.levels, { onDelete: "CASCADE", nullable: false})
     public garage!: Garage;

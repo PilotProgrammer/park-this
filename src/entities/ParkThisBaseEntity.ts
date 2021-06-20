@@ -1,8 +1,8 @@
 import {
-  PrimaryGeneratedColumn, Column
+  PrimaryGeneratedColumn, Column, BaseEntity
 } from 'typeorm'
 
-export abstract class BaseEntity {
+export abstract class ParkThisBaseEntity { //extends BaseEntity {
   @PrimaryGeneratedColumn("uuid")
   public id!: string
 

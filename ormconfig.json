@@ -7,7 +7,8 @@
   "database": "ParkThis",
   "schema": "public",
   "entities": [
-    "src/entities/**/!(*.seed.ts)"
+    "./src/entities/**/!(*.seed.ts)",
+    "./build/entity/*.js"
   ],
   "migrations":  [
     "src/migrations/**/*.ts"

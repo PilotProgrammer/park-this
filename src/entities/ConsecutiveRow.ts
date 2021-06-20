@@ -1,10 +1,13 @@
-import { Entity, ManyToOne, OneToMany } from 'typeorm';
-import { BaseEntity } from './BaseEntity';
+import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
+import { ParkThisBaseEntity } from './ParkThisBaseEntity';
 import { Level } from './Level';
 import { Spot } from './Spot';
 
 @Entity("ConsecutiveRow")
-export class ConsecutiveRow extends BaseEntity {
+export class ConsecutiveRow extends ParkThisBaseEntity {
+
+  @Column()
+  public rowNumber!: number;
 
   @ManyToOne(type => Level, level => level.rows, { onDelete: "CASCADE", nullable: false })
   public level!: Level;

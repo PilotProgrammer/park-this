@@ -1,11 +1,11 @@
 
 import { Column, Entity, OneToMany } from 'typeorm';
-import { BaseEntity } from './BaseEntity';
+import { ParkThisBaseEntity } from './ParkThisBaseEntity';
 import { Level } from './Level';
 import { VehicleType } from './VehicleType';
 
 @Entity("Garage")
-export class Garage extends BaseEntity {
+export class Garage extends ParkThisBaseEntity {
 
     @Column({ type: "citext"})
     public name!: string;
