@@ -1,4 +1,4 @@
-import {getConnectionManager, ConnectionManager, Connection} from "typeorm";
+import { getConnectionManager, getConnection } from "typeorm";
 
 import { ConsecutiveRow } from "./entities/ConsecutiveRow";
 import { Garage } from "./entities/Garage";
@@ -6,9 +6,14 @@ import { Level } from "./entities/Level";
 import { Spot } from "./entities/Spot";
 import { Vehicle } from "./entities/Vehicle";
 
-export const connectFromLocal = async() => {
+export const connectFromLocal = async () => {
   const connectionManager = getConnectionManager();
-  const connection = connectionManager.create({
+
+  if (connectionManager.has('default') === true) {
+    return getConnection('default');
+  } else {
+    const connection = connectionManager.create({
+      name: "default",
       type: "postgres",
       host: "localhost",
       port: 5432,
@@ -22,9 +27,10 @@ export const connectFromLocal = async() => {
         Spot,
         Vehicle
       ]
-  });
+    });
 
-  return connection.connect(); // performs connection  
+    return connection.connect();
+  }
 }
 
 export {
