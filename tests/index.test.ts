@@ -1,48 +1,32 @@
 import { assert } from 'console';
-import { Connection, EntityManager, getConnection, QueryRunner, TreeChildren } from 'typeorm';
+import { Connection, EntityManager, getConnection, getConnectionManager, QueryRunner, TreeChildren } from 'typeorm';
 var Fakerator = require("fakerator");
 
-import { connectFromLocal, ConsecutiveRow, Garage, Level, Spot, Vehicle } from '../src'
+import { ConsecutiveRow, Garage, Level, Spot, Vehicle } from '../src'
 import { SpotType } from '../src/entities/SpotType';
 import { VehicleType } from '../src/entities/VehicleType';
+import { getDbConnection } from '../src/utility/getDbConnection';
 
-let connMan: ConnectionManager;
-let transaction: QueryRunner;
 
 beforeAll(async () => {
-  connMan = new ConnectionManager();
+
 });
 
 beforeEach(async () => {
-  const conn = await connMan.getConnection();
-  transaction = conn.createQueryRunner();
-  await transaction.startTransaction()
+  // connMan.executeTransaction(async (db: EntityManager) => {
+  //   const garageRepo = db.getRepository(Garage);
+  //   await garageRepo.clear();
+  //   // await garageRepo.query('DELETE FROM public."Garage"');
+  // })
 });
 
-afterEach(async () => {
-  try {
-    await transaction.rollbackTransaction();
-  } finally {
-    await transaction.release();
-  }
-})
-
-afterAll(() => getConnection().close());
-
+// afterAll(() => connMan.disconnect());
 
 it("test", async () => {
 
-  // const garageRepo = conn.getRepository(Garage);
-  // const levelRepo = conn.getRepository(Level);
-  // const rowRepo = conn.getRepository(ConsecutiveRow);
-  // const spotRepo = conn.getRepository(Spot);
-  // const carRepo = conn.getRepository(Vehicle);
-
-
   var fakerator = Fakerator("en-AU"); // cuz there's not one for en-US
 
-  const connMan = new ConnectionManager();
-  const fact = new GarageFactory(connMan);
+  const fact = new GarageFactory();
   const garage = fact.planGarage(
     fakerator.names.firstName(),
     fakerator.names.firstName(),
@@ -58,10 +42,10 @@ it("test", async () => {
 
   await fact.buildGarage(garage);
 
-  const garageRepo = transaction.manager.getRepository(Garage);
-  const foundGarage = await garageRepo.findOneOrFail(garage.id);
+  const garageRepo = (await getDbConnection()).getRepository(Garage);
+  const foundGarage = await garageRepo.findOneOrFail({ id: garage.id });
 
-  expect(foundGarage).toBeDefined();
+  expect(foundGarage.name).toBe(garage.name);
 
   // const spot = new Vehicle();
   // spot.color = "red";
@@ -72,36 +56,9 @@ it("test", async () => {
   console.log("hello!")
 })
 
-export class ConnectionManager {
-
-  // TODO: array of connections to allow running parallel jest test execution (allow removing --runInBand from execution parameters)
-  // private connections: Connection[] = [] 
-  // public pushConn(conn: Connection) {
-  //   this.connections.push(conn);
-  // }
-  // public popConn(conn: Connection) {
-  //   return this.connections.pop();
-  // }
-
-  private connection?: Connection;
-
-  public async getConnection() {
-    if (this.connection == null) {
-      this.connection = await connectFromLocal();
-    }
-    return this.connection;
-  }
-
-  public async executeTransaction(statementsToExecute: (db: EntityManager) => any) {
-    const db = await this.getConnection();
-    return await db.transaction(statementsToExecute);
-  }
-}
 
 
 export class GarageFactory {
-  // public constructor(private dbConnection: Connection) { }
-  public constructor(private connectionManager: ConnectionManager) { }
 
   public planGarage(name: string, company: string, streetAddress: string, city: string, state: string, postalCode: string): Garage {
     const garage = new Garage();
@@ -165,7 +122,7 @@ export class GarageFactory {
     // is per https://orkhan.gitbook.io/typeorm/docs/transactions, "The most important restriction when working 
     // in an transaction is, to ALWAYS use the provided instance of entity manager". In other words, the db will
     // be injected in to the async function below, on it's behalf.
-    this.connectionManager.executeTransaction(async (db: EntityManager) => {
+    await (await getDbConnection()).transaction(async (db: EntityManager) => {
       const garageRepo = db.getRepository(Garage);
       await garageRepo.save(garage);
     })
@@ -184,6 +141,4 @@ export class GarageFactory {
     if (garage.levels.length > level) // TODO unit test this
       throw new Error(`Requested level ${level} exceeds number of levels on garage ${garage.levels.length}`);
   }
-
-
 }
