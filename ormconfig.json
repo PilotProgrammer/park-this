@@ -8,7 +8,7 @@
   "schema": "public",
   "entities": [
     "./src/entities/**/!(*.seed.ts)",
-    "./build/entity/*.js"
+    "./build/entities/*.js"
   ],
   "migrations":  [
     "src/migrations/**/*.ts"

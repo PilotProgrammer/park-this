@@ -5,11 +5,15 @@ import { Garage } from "./entities/Garage";
 import { Level } from "./entities/Level";
 import { Spot } from "./entities/Spot";
 import { Vehicle } from "./entities/Vehicle";
+import { GarageFactory } from "./factory/GarageFactory";
+import { VehicleFactory } from "./factory/VehicleFactory";
 
 export {
   ConsecutiveRow,
   Garage,
   Level,
   Spot,
-  Vehicle
+  Vehicle,
+  GarageFactory,
+  VehicleFactory
 }

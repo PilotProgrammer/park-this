@@ -2,7 +2,8 @@ import { assert } from 'console';
 import { Connection, EntityManager, getConnection, getConnectionManager, QueryRunner, TreeChildren } from 'typeorm';
 var Fakerator = require("fakerator");
 
-import { ConsecutiveRow, Garage, Level, Spot, Vehicle } from '../src'
+import { ConsecutiveRow, Garage, Level, Spot, Vehicle, GarageFactory, VehicleFactory } from '../src'
+// import { GarageFactory } from '../src/factory/GarageFactory'
 import { SpotType } from '../src/entities/SpotType';
 import { VehicleType } from '../src/entities/VehicleType';
 import { getDbConnection } from '../src/utility/getDbConnection';
@@ -13,132 +14,144 @@ beforeAll(async () => {
 });
 
 beforeEach(async () => {
-  // connMan.executeTransaction(async (db: EntityManager) => {
-  //   const garageRepo = db.getRepository(Garage);
-  //   await garageRepo.clear();
-  //   // await garageRepo.query('DELETE FROM public."Garage"');
-  // })
+  (await getDbConnection()).transaction(async (db: EntityManager) => {
+    // .clear() translates to "truncate", and doens't work in postgres because foreign key exists, even though it's set to "oncascade: delete"
+    const garageRepo = db.getRepository(Garage);
+    await garageRepo.query('DELETE FROM public."Garage"');
+
+    const vehicleRepo = db.getRepository(Vehicle);
+    await vehicleRepo.query('DELETE FROM public."Vehicle"');
+  })
 });
 
 // afterAll(() => connMan.disconnect());
 
-it("test", async () => {
+describe('Test build garage', () => {
 
-  var fakerator = Fakerator("en-AU"); // cuz there's not one for en-US
+  it('GarageFactory base case', async () => {
 
-  const fact = new GarageFactory();
-  const garage = fact.planGarage(
-    fakerator.names.firstName(),
-    fakerator.names.firstName(),
-    fakerator.address.street(),
-    fakerator.address.city(),
-    fakerator.names.firstName(),
-    fakerator.address.postCode(),
-  );
+    var fakerator = Fakerator("en-AU"); // cuz there's not one for en-US
 
-  fact.addLevel(garage);
-  fact.addLevel(garage);
-  fact.addLevel(garage);
+    const fact = new GarageFactory();
+    const garage = fact.planGarage( {
+      name: fakerator.names.firstName(),
+      company: fakerator.names.firstName(),
+      streetAddress: fakerator.address.street(),
+      city: fakerator.address.city(),
+      state: fakerator.names.firstName(),
+      postalCode: fakerator.address.postCode()
+    });
 
-  await fact.buildGarage(garage);
+    // add 2 levels
+    fact.addLevel(garage);
+    fact.addLevel(garage);
 
-  const garageRepo = (await getDbConnection()).getRepository(Garage);
-  const foundGarage = await garageRepo.findOneOrFail({ id: garage.id });
+    // add 3 rows to level 0
+    fact.addRow(garage, BigInt(0));
+    fact.addRow(garage, BigInt(0));
+    fact.addRow(garage, BigInt(0));
 
-  expect(foundGarage.name).toBe(garage.name);
+    // add 2 rows to level 1 
+    fact.addRow(garage, BigInt(1));
+    fact.addRow(garage, BigInt(1));
 
-  // const spot = new Vehicle();
-  // spot.color = "red";
-  // spot.licensePlateNumber = "123asdf"
-  // spot.name = "Camero";
-  // spot.vehicleType = VehicleType.Automobile
-  // await spotRepo.save(spot);
-  console.log("hello!")
+    // add spots to level 0 row 1 - 8 spots
+    fact.addSpot(garage, BigInt(0), BigInt(0), SpotType.CompactSpot);
+    fact.addSpot(garage, BigInt(0), BigInt(0), SpotType.CompactSpot);
+    fact.addSpot(garage, BigInt(0), BigInt(0), SpotType.CompactSpot);
+    fact.addSpot(garage, BigInt(0), BigInt(0), SpotType.MotorcycleSpot);
+    fact.addSpot(garage, BigInt(0), BigInt(0), SpotType.MotorcycleSpot);
+    fact.addSpot(garage, BigInt(0), BigInt(0), SpotType.LargeSpot); // TODO test that a bus can't park here. start off counting enough large spots but overflows row
+    fact.addSpot(garage, BigInt(0), BigInt(0), SpotType.LargeSpot);
+    fact.addSpot(garage, BigInt(0), BigInt(0), SpotType.LargeSpot);
+
+    // add spots to level 0 row 2 - 8 spots
+    fact.addSpot(garage, BigInt(0), BigInt(1), SpotType.MotorcycleSpot);
+    fact.addSpot(garage, BigInt(0), BigInt(1), SpotType.MotorcycleSpot);
+    fact.addSpot(garage, BigInt(0), BigInt(1), SpotType.LargeSpot); // TODO test that a bus can fit here, but not two busses in this row simultaneously
+    fact.addSpot(garage, BigInt(0), BigInt(1), SpotType.LargeSpot);
+    fact.addSpot(garage, BigInt(0), BigInt(1), SpotType.LargeSpot);
+    fact.addSpot(garage, BigInt(0), BigInt(1), SpotType.LargeSpot);
+    fact.addSpot(garage, BigInt(0), BigInt(1), SpotType.LargeSpot);
+    fact.addSpot(garage, BigInt(0), BigInt(1), SpotType.LargeSpot);
+
+    // add spots to level 0 row 3 - 10 spots
+    fact.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot); // TODO test two busses can fit in this row
+    fact.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
+    fact.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
+    fact.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
+    fact.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
+    fact.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
+    fact.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
+    fact.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
+    fact.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
+    fact.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
+
+    // add spots to level 1 row 0 - 7 spots
+    fact.addSpot(garage, BigInt(1), BigInt(0), SpotType.MotorcycleSpot); // only bikes in this row
+    fact.addSpot(garage, BigInt(1), BigInt(0), SpotType.MotorcycleSpot);
+    fact.addSpot(garage, BigInt(1), BigInt(0), SpotType.MotorcycleSpot);
+    fact.addSpot(garage, BigInt(1), BigInt(0), SpotType.MotorcycleSpot);
+    fact.addSpot(garage, BigInt(1), BigInt(0), SpotType.MotorcycleSpot);
+    fact.addSpot(garage, BigInt(1), BigInt(0), SpotType.MotorcycleSpot);
+    fact.addSpot(garage, BigInt(1), BigInt(0), SpotType.MotorcycleSpot);
+
+    // add spots to level 1 row 1 - 8 spots
+    fact.addSpot(garage, BigInt(1), BigInt(1), SpotType.CompactSpot);
+    fact.addSpot(garage, BigInt(1), BigInt(1), SpotType.CompactSpot);
+    fact.addSpot(garage, BigInt(1), BigInt(1), SpotType.CompactSpot);
+    fact.addSpot(garage, BigInt(1), BigInt(1), SpotType.LargeSpot); // TODO bus tries to park here, far enough from edge of the row, but not enough large spots
+    fact.addSpot(garage, BigInt(1), BigInt(1), SpotType.LargeSpot);
+    fact.addSpot(garage, BigInt(1), BigInt(1), SpotType.LargeSpot);
+    fact.addSpot(garage, BigInt(1), BigInt(1), SpotType.CompactSpot);
+    fact.addSpot(garage, BigInt(1), BigInt(1), SpotType.CompactSpot);
+
+    await fact.buildGarage(garage);
+
+    const result = await fact.findGarage({ name: garage.name, company: garage.company });
+
+    expect(result.length).toBe(1);
+    const foundGarage = result[0];
+    expect(foundGarage.name).toBe(garage.name);
+    expect(foundGarage.company).toBe(garage.company);
+
+    // 2 levels
+    expect(foundGarage.levels.length).toBe(2);
+
+    // 3 rows in level 0
+    expect(foundGarage.levels[0].rows.length).toBe(3);
+
+    // 2 rows in level 1
+    expect(foundGarage.levels[1].rows.length).toBe(2);
+
+    // verify count of all spots in level 0
+    expect(foundGarage.levels[0].rows[0].spots.length).toBe(8);
+    expect(foundGarage.levels[0].rows[1].spots.length).toBe(8);
+    expect(foundGarage.levels[0].rows[2].spots.length).toBe(10);
+
+    // verify count of all spots in level 1
+    expect(foundGarage.levels[1].rows[0].spots.length).toBe(7);
+    expect(foundGarage.levels[1].rows[1].spots.length).toBe(8);
+
+    console.log('test end')
+  })
+
+  // TODO edge cases when building garage
+// level that is out of bounds
+// spot that is out of bounds
+})
+
+describe('VehicleFactory tests', () => {
+  it('Create and retrieve a vehicle', async() => {
+    const fact = new VehicleFactory();
+    // const vehicle = fact.
+    // const spot = new Vehicle();
+    // spot.color = "red";
+    // spot.licensePlateNumber = "123asdf"
+    // spot.name = "Camero";
+    // spot.vehicleType = VehicleType.Automobile
+    // await spotRepo.save(spot);
+  })
 })
 
 
-
-export class GarageFactory {
-
-  public planGarage(name: string, company: string, streetAddress: string, city: string, state: string, postalCode: string): Garage {
-    const garage = new Garage();
-
-    const propertiesToAssign = {
-      name,
-      company,
-      streetAddress,
-      city,
-      state,
-      postalCode
-    }
-
-    const assignedGarage: Garage = Object.assign(garage, propertiesToAssign)
-
-    assignedGarage.levels = new Array<Level>(); // TODO array of interfaces
-    return assignedGarage;
-  }
-
-  public addLevel(garage: Garage) {
-    const newLevel = new Level();
-    newLevel.rows = new Array<ConsecutiveRow>(); // TODO array of interfaces
-    let currentLevelCount = garage.levels.length;
-    newLevel.levelNumber = currentLevelCount++;
-    garage.levels.push(newLevel);
-  }
-
-  public addRow(garage: Garage, level: BigInt) {
-    const levelNum = Number(level);
-    this.validateLevel(garage, levelNum);
-
-    const newRow = new ConsecutiveRow();
-    newRow.spots = new Array<Spot>(); // TODO array of interfaces
-    const targetLevel = garage.levels[levelNum];
-    let currentRowCount = targetLevel.rows.length;
-    newRow.rowNumber = currentRowCount++;
-    targetLevel.rows.push(newRow);
-
-    return garage;
-  }
-
-  public addSpot(garage: Garage, level: BigInt, row: BigInt, spotType: SpotType) {
-    const levelNum = Number(level);
-    const rowNum = Number(row);
-    this.validateRow(garage, levelNum, rowNum);
-
-    const newSpot = new Spot();
-    newSpot.spotType = spotType;
-    const targetRow = garage.levels[levelNum].rows[rowNum]
-    let currentSpotCount = targetRow.spots.length;
-    newSpot.spotNumber = currentSpotCount++;
-    targetRow.spots.push(newSpot);
-
-    return garage;
-  }
-
-  public async buildGarage(garage: Garage) {
-    // TODO validate that garage has at least one level, all levels have at least one row, and all rows have at least one spot
-
-    // the reason it might be confusing that there's not "db" instantiated and passed to executeTransaction here,
-    // is per https://orkhan.gitbook.io/typeorm/docs/transactions, "The most important restriction when working 
-    // in an transaction is, to ALWAYS use the provided instance of entity manager". In other words, the db will
-    // be injected in to the async function below, on it's behalf.
-    await (await getDbConnection()).transaction(async (db: EntityManager) => {
-      const garageRepo = db.getRepository(Garage);
-      await garageRepo.save(garage);
-    })
-  }
-
-  private validateRow(garage: Garage, level: number, row: number) {
-    this.validateLevel(garage, level)
-    const targetLevel = garage.levels[level];
-
-    if (targetLevel.rows.length > row) // TODO unit test this
-      throw new Error(`Requested row ${row} exceeds number of row on garage level ${targetLevel.rows.length}`);
-  }
-
-
-  private validateLevel(garage: Garage, level: number) {
-    if (garage.levels.length > level) // TODO unit test this
-      throw new Error(`Requested level ${level} exceeds number of levels on garage ${garage.levels.length}`);
-  }
-}
