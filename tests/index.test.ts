@@ -31,8 +31,8 @@ beforeEach(async () => {
 // afterAll(() => connMan.disconnect());
 
 
-describe('Enter and leave garage', () => {
-  it('Enter', async () => {
+describe('Garage operations', () => {
+  it('Enter garage', async () => {
     const vehicleFact = new VehicleFactory();
     const bus = await buildVehicle(vehicleFact, VehicleType.Bus);
 
@@ -48,7 +48,21 @@ describe('Enter and leave garage', () => {
     expect(vehiclesInGarage.length).toBe(1);
     expect(vehiclesInGarage[0] instanceof Bus);
     expect(vehiclesInGarage[0].licensePlateNumber).toBe(bus.licensePlateNumber);
+
+    // leave garage
+    await bus.leave();
+
+    // check that garage says there's a bus in it
+    const findResultsLeave = await fact.findGarage({ name: garage.name, company: garage.company });
+    expect(findResultsLeave.length).toBe(1);
+    const hopefullyNoVehiclesInGarage = await findResultsLeave[0].getAllVehiclesInGarage();
+    expect(hopefullyNoVehiclesInGarage.length).toBe(0);
+
   })
+
+  // TODO edge cases
+  // * check you can't enter another garage when you're already in one!
+  // * check that you can't leave a garage when you're not in one!
 
   // TODO unit test where Garage.canFit is false (requires method implementation)
 })

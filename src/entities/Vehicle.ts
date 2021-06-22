@@ -31,7 +31,13 @@ export abstract class Vehicle extends ParkThisBaseEntity implements IVehicle {
   @ManyToOne(type => Garage, garage => garage.vehicles, { onDelete: "SET NULL", nullable: true })
   public garage?: Garage;
 
+  @Column({ nullable: true })
+  public garageId?: string;
+
   public async enter(garage: Garage) {
+    if (this.garage != null && this.garage.id != garage.id)
+      throw new Error(`Can't enter a new garage ${garage.id} until vehicle leaves current garage ${this.garage.id}`);
+
     if (await garage.canFit(this) == false)
       throw new Error(`Garage can't fit this vehicle`);
 
@@ -46,12 +52,8 @@ export abstract class Vehicle extends ParkThisBaseEntity implements IVehicle {
   }
 
   public async leave(): Promise<boolean> {
-    this.garage = undefined;
-
-    await (await getDbConnection()).transaction(async (db: EntityManager) => {
-      const repo = db.getRepository(Vehicle);
-      await repo.save(this);
-    })
+    const db = await getDbConnection();
+    await db.getRepository(Vehicle).update(this.id, { garageId: undefined });
 
     return true;
   }
