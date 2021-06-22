@@ -3,10 +3,15 @@ import { Connection, EntityManager, getConnection, getConnectionManager, QueryRu
 var Fakerator = require("fakerator");
 
 import { ConsecutiveRow, Garage, Level, Spot, Vehicle, GarageFactory, VehicleFactory } from '../src'
-// import { GarageFactory } from '../src/factory/GarageFactory'
 import { SpotType } from '../src/entities/SpotType';
 import { VehicleType } from '../src/entities/VehicleType';
 import { getDbConnection } from '../src/utility/getDbConnection';
+import { Bus } from '../src/vehicles/Bus';
+import { Car } from '../src/vehicles/Car';
+import { IVehicle } from '../src/vehicles/IVehicle';
+import { Motorcycle } from '../src/vehicles/Motorcycle';
+
+const fakerator = Fakerator("en-AU"); // cuz there's not one for en-US
 
 
 beforeAll(async () => {
@@ -26,14 +31,11 @@ beforeEach(async () => {
 
 // afterAll(() => connMan.disconnect());
 
-describe('Test build garage', () => {
+xdescribe('Test build garage', () => {
 
   it('GarageFactory base case', async () => {
-
-    var fakerator = Fakerator("en-AU"); // cuz there's not one for en-US
-
     const fact = new GarageFactory();
-    const garage = fact.planGarage( {
+    const garage = fact.planGarage({
       name: fakerator.names.firstName(),
       company: fakerator.names.firstName(),
       streetAddress: fakerator.address.street(),
@@ -137,21 +139,66 @@ describe('Test build garage', () => {
   })
 
   // TODO edge cases when building garage
-// level that is out of bounds
-// spot that is out of bounds
+  // level that is out of bounds
+  // spot that is out of bounds
 })
 
 describe('VehicleFactory tests', () => {
-  it('Create and retrieve a vehicle', async() => {
+
+  it('Create and retrieve bike', async () => {
     const fact = new VehicleFactory();
-    // const vehicle = fact.
-    // const spot = new Vehicle();
-    // spot.color = "red";
-    // spot.licensePlateNumber = "123asdf"
-    // spot.name = "Camero";
-    // spot.vehicleType = VehicleType.Automobile
-    // await spotRepo.save(spot);
+    const bike = await buildVehicle(fact, VehicleType.Motorcycle);
+    expect(bike instanceof Motorcycle).toBeTruthy();
+
+    const findBikeResults = await fact.findVehicle({ licensePlateNumber: bike.licensePlateNumber, state: bike.state });
+
+    expect(findBikeResults.length).toBe(1);
+    const foundBike = findBikeResults[0];
+    expect(foundBike instanceof Motorcycle).toBeTruthy();
+    validateVehicle(foundBike, bike);
+  })
+
+  it('Create and retrieve car', async () => {
+    const fact = new VehicleFactory();
+    const car = await buildVehicle(fact, VehicleType.Automobile);
+    expect(car instanceof Car).toBeTruthy();
+
+    const findResults = await fact.findVehicle({ licensePlateNumber: car.licensePlateNumber, state: car.state });
+
+    expect(findResults.length).toBe(1);
+    const foundCar = findResults[0];
+    expect(foundCar instanceof Car).toBeTruthy();
+    validateVehicle(foundCar, car);
+  })
+
+  it('Create and retrieve bus', async () => {
+    const fact = new VehicleFactory();
+    const bus = await buildVehicle(fact, VehicleType.Bus);
+    expect(bus instanceof Bus).toBeTruthy();
+
+    const findResults = await fact.findVehicle({ licensePlateNumber: bus.licensePlateNumber, state: bus.state });
+
+    expect(findResults.length).toBe(1);
+    const foundBus = findResults[0];
+    expect(foundBus instanceof Bus).toBeTruthy();
+    validateVehicle(foundBus, bus);
   })
 })
 
+function validateVehicle(foundVehicle: IVehicle, originalVehicle: IVehicle) {
+  expect(foundVehicle.color).toBe(originalVehicle.color);
+  expect(foundVehicle.name).toBe(originalVehicle.name);
+  expect(foundVehicle.licensePlateNumber).toBe(originalVehicle.licensePlateNumber);
+  expect(foundVehicle.state).toBe(originalVehicle.state);
+}
+
+async function buildVehicle(fact: VehicleFactory, type: VehicleType) {
+  return await fact.buildVehicle({
+    vehicleType: type,
+    color: 'red',
+    name: fakerator.names.firstName(),
+    licensePlateNumber: fakerator.internet.color(),
+    state: fakerator.names.firstName(),
+  });
+}
 

@@ -6,4 +6,17 @@ export interface IVehicle {
   leave(): boolean;
   park(spot: Spot): boolean;
   unpark(): boolean;
+
+  name?: string;
+
+  color?: string;
+
+  licensePlateNumber: string;
+
+  state: string;
+
+  spots?: Spot[];
+
+  garage?: Garage;
+
 }

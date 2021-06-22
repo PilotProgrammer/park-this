@@ -1,5 +1,4 @@
 import { EntityManager } from 'typeorm';
-import { Garage } from '../entities/Garage';
 import { Vehicle } from '../entities/Vehicle';
 import { VehicleType } from '../entities/VehicleType';
 import { getDbConnection } from '../utility/getDbConnection';
@@ -28,10 +27,9 @@ export class VehicleFactory {
         break;
       case VehicleType.Bus:
         vehicle = new Bus();
-        break; 
+        break;
     }
 
-    // const garage = new Garage();
     vehicle = Object.assign(vehicle, request)
 
     await (await getDbConnection()).transaction(async (db: EntityManager) => {
@@ -39,17 +37,43 @@ export class VehicleFactory {
       await repo.save(vehicle);
     })
 
-    // assignedGarage.levels = new Array<Level>(); // TODO array of interfaces
+    // vehicle.spots = [];
+    // vehicle.garage = null;
+
     return vehicle;
   }
 
   public async findVehicle(searchParams: SearchVehicleRequest) {
-    const repo = (await getDbConnection()).getRepository(Garage);
+    const repo = (await getDbConnection()).getRepository(Vehicle);
     const result = await repo.find({
       where: searchParams,
-      relations: ['spots', 'levels.rows', 'levels.rows.spots']
+      relations: ['spots', 'garage']
     });
 
-    return result;
+    const vehicles = result.map((fromVehicle) => {
+      let toVehicle: IVehicle;
+
+      switch (fromVehicle.vehicleType) {
+        case VehicleType.Motorcycle:
+          toVehicle = new Motorcycle();
+          break;
+        case VehicleType.Automobile:
+          toVehicle = new Car();
+          break;
+        case VehicleType.Bus:
+          toVehicle = new Bus();
+          break;
+      }
+
+      toVehicle = Object.assign(toVehicle, fromVehicle);
+
+      // if (toVehicle.spots == null) {
+      //   toVehicle.spots = [];
+      // }
+
+      return toVehicle;
+    })
+
+    return vehicles;
   }
 }
