@@ -3,11 +3,11 @@ import { Vehicle } from "../entities/Vehicle";
 import { IVehicle } from "./IVehicle";
 
 export class Car extends Vehicle implements IVehicle {
-  park(spot: Spot): boolean {
+  async park(spot: Spot): Promise<boolean> {
     return false;
   }
 
-  unpark(): boolean {
+  async unpark(): Promise<boolean> {
     return false;
   }
 }

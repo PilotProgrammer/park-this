@@ -22,7 +22,7 @@ export class VehicleFactory {
       case VehicleType.Motorcycle:
         vehicle = new Motorcycle();
         break;
-      case VehicleType.Automobile:
+      case VehicleType.Car:
         vehicle = new Car();
         break;
       case VehicleType.Bus:
@@ -57,7 +57,7 @@ export class VehicleFactory {
         case VehicleType.Motorcycle:
           toVehicle = new Motorcycle();
           break;
-        case VehicleType.Automobile:
+        case VehicleType.Car:
           toVehicle = new Car();
           break;
         case VehicleType.Bus:
