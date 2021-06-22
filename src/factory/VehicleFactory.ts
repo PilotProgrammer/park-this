@@ -50,6 +50,12 @@ export class VehicleFactory {
       relations: ['spots', 'garage']
     });
 
+    const vehicles = await this.databaseVehiclesToDomainModel(result);
+
+    return vehicles;
+  }
+
+  public async databaseVehiclesToDomainModel(result: Vehicle[]) {
     const vehicles = result.map((fromVehicle) => {
       let toVehicle: IVehicle;
 
@@ -72,7 +78,7 @@ export class VehicleFactory {
       // }
 
       return toVehicle;
-    })
+    });
 
     return vehicles;
   }

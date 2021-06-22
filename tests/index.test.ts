@@ -30,6 +30,29 @@ beforeEach(async () => {
 
 // afterAll(() => connMan.disconnect());
 
+
+describe('Enter and leave garage', () => {
+  it('Enter', async () => {
+    const vehicleFact = new VehicleFactory();
+    const bus = await buildVehicle(vehicleFact, VehicleType.Bus);
+
+    const { fact, garage } = await createTestGarage();
+
+    // Bus enters garage
+    await bus.enter(garage);
+
+    // check that garage says there's a bus in it
+    const findResults = await fact.findGarage({ name: garage.name, company: garage.company });
+    expect(findResults.length).toBe(1);
+    const vehiclesInGarage = await findResults[0].getAllVehiclesInGarage();
+    expect(vehiclesInGarage.length).toBe(1);
+    expect(vehiclesInGarage[0] instanceof Bus);
+    expect(vehiclesInGarage[0].licensePlateNumber).toBe(bus.licensePlateNumber);
+  })
+
+  // TODO unit test where Garage.canFit is false (requires method implementation)
+})
+
 describe('Test build garage', () => {
 
   it('GarageFactory base case', async () => {
@@ -110,18 +133,7 @@ describe('VehicleFactory tests', () => {
   })
 })
 
-describe('Enter and leave garage', () => {
-  it('Enter', async () => {
-    const fact = new VehicleFactory();
-    const bus = await buildVehicle(fact, VehicleType.Bus);
 
-    const { garage } = await createTestGarage();
-
-    await bus.enter(garage)
-  })
-
-
-})
 
 
 
