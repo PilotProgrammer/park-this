@@ -7,6 +7,8 @@ import { Vehicle } from './Vehicle';
 import { getDbConnection } from '../utility/getDbConnection';
 import { IVehicle } from '../vehicles/IVehicle';
 import { VehicleFactory } from '../factory/VehicleFactory';
+import { AppContext } from '../app/AppContext';
+import { IVehicleFactory } from '../factory/IVehicleFactory';
 
 @Entity("Garage")
 export class Garage extends ParkThisBaseEntity {
@@ -51,7 +53,7 @@ export class Garage extends ParkThisBaseEntity {
     }
 
     public async getAllVehiclesInGarage() {
-        const fact = new VehicleFactory();
+        const fact: IVehicleFactory = AppContext.getVehicleFactory();
         return await fact.databaseVehiclesToDomainModel(this.vehicles);
     }
 
