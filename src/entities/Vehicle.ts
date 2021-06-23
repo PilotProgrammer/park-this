@@ -26,13 +26,18 @@ export abstract class Vehicle extends ParkThisBaseEntity implements IVehicle {
   public vehicleType!: VehicleType;
 
   @OneToMany(type => Spot, spot => spot.occupyingVehicle)
-  public spots?: Spot[];
+  public spots!: Spot[];
 
   @ManyToOne(type => Garage, garage => garage.vehicles, { onDelete: "SET NULL", nullable: true })
   public garage?: Garage;
 
   @Column({ nullable: true })
   public garageId?: string;
+
+  // public constructor() {
+  //   super();
+  //   this.spots = [];
+  // }
 
   public async enter(garage: Garage) {
     if (this.garage != null && this.garage.id != garage.id)
@@ -67,7 +72,7 @@ export abstract class Vehicle extends ParkThisBaseEntity implements IVehicle {
   public abstract park(garage: Garage, levelNum: number, rowNum: number, spotNum: number): Promise<boolean>;
   public abstract unpark(): Promise<boolean>;
 
-  protected validateGarageLevelAndRow(garage: Garage, levelNum: number, rowNum: number) {
+  protected validateGarageLevelRowAndSpot(garage: Garage, levelNum: number, rowNum: number, spotNum: number) {
     if (garage == null)
       throw new Error(`Garage must be provided`);
 
@@ -75,6 +80,9 @@ export abstract class Vehicle extends ParkThisBaseEntity implements IVehicle {
       throw new Error(`Level number doesn't exist in garage`);
 
     if (rowNum < 0 || rowNum >= garage.levels[levelNum].rows.length)
+      throw new Error(`Row number doesn't exist in requested level`);
+
+    if (spotNum < 0 || spotNum >= garage.levels[levelNum].rows[rowNum].spots.length)
       throw new Error(`Row number doesn't exist in requested level`);
   }
 }

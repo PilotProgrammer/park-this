@@ -100,9 +100,9 @@ export async function buildVehicle(fact: VehicleFactory, type: VehicleType) {
   });
 }
 
-export async function testSingleVehicleParkingInSpot(levelNum: number, rowNum: number, spotNum: number) {
+export async function testSingleVehicleParkingInSpot(vehicleType: VehicleType, levelNum: number, rowNum: number, spotNum: number) {
   const vehicleFact = new VehicleFactory();
-  const vehicle = await buildVehicle(vehicleFact, VehicleType.Motorcycle);
+  const vehicle = await buildVehicle(vehicleFact, vehicleType);
 
   const { fact: garageFactory, garage } = await createTestGarage();
   const vacantSpots = await garage.getVacantSpots();
@@ -117,9 +117,9 @@ export async function testSingleVehicleParkingInSpot(levelNum: number, rowNum: n
   // reaquire garage after vehicle entered and parked
   const findResults = await garageFactory.findGarage({ name: garage.name, company: garage.company });
   expect(findResults.length).toBe(1);
-  const garageWithBike = findResults[0];
-  const updatedVacantSpots = await garageWithBike.getVacantSpots();
-  const updatedOccupiedSpots = await garageWithBike.getOccupiedSpots();
+  const garageWithVehicle = findResults[0];
+  const updatedVacantSpots = await garageWithVehicle.getVacantSpots();
+  const updatedOccupiedSpots = await garageWithVehicle.getOccupiedSpots();
   expect(updatedVacantSpots.length).toBe(40);
   expect(updatedOccupiedSpots.length).toBe(1);
 

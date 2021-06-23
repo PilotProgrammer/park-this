@@ -16,8 +16,8 @@ export class Spot extends ParkThisBaseEntity {
     @ManyToOne(type => ConsecutiveRow, row => row.spots, { onDelete: "CASCADE", nullable: false})
     public parentRow!: ConsecutiveRow;
 
-    @ManyToOne(type => Vehicle, vehicle => vehicle.spots, { cascade: true })
-    public occupyingVehicle!: Vehicle;
+    @ManyToOne(type => Vehicle, vehicle => vehicle.spots, { cascade: true, nullable: true })
+    public occupyingVehicle?: Vehicle;
 
     @Column({ nullable: true })
     public occupyingVehicleId?: string

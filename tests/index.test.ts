@@ -14,55 +14,176 @@ export const fakerator = Fakerator("en-AU"); // cuz there's not one for en-US
 
 
 beforeAll(async () => {
-  (await getDbConnection()).transaction(async (db: EntityManager) => {
-    // .clear() translates to "truncate", and doens't work in postgres because foreign key exists, even though it's set to "oncascade: delete"
-    const garageRepo = db.getRepository(Garage);
-    await garageRepo.query('DELETE FROM public."Garage"');
+  const db = await getDbConnection();
+  // .clear() translates to "truncate", and doens't work in postgres because foreign key exists, even though it's set to "oncascade: delete"
+  const garageRepo = await db.getRepository(Garage);
+  await garageRepo.query('DELETE FROM public."Garage"');
 
-    const vehicleRepo = db.getRepository(Vehicle);
-    await vehicleRepo.query('DELETE FROM public."Vehicle"');
-  })
+  const vehicleRepo = await db.getRepository(Vehicle);
+  await vehicleRepo.query('DELETE FROM public."Vehicle"');
 });
 
-beforeEach(async () => {
-
-});
-
+// beforeEach(async () => {});
 // afterAll(() => connMan.disconnect());
 
+xdescribe('Bus garage operations', () => {
+  // TODO 
+  // 1. normal park bus in 5 large adjacent spots
+  // 2 error when park large spots that aren't 5 adjacent, either because   
+  // a. there's non large in the middle, or because 
+  // b. the "starting spot" overflows to the end of the row (separate test case)
+  it('Park and unpark a bus in 5 consecutive large spots', async () => {
+    const levelNum = 1;
+    const rowNum = 1;
+    const spotNum = 0;
 
-describe('Garage operations', () => {
+    const { garageFactory, vehicleFact, garage, vehicle } = await testSingleVehicleParkingInSpot(VehicleType.Bus, levelNum, rowNum, spotNum);
+
+    // now test that we can UNpark too (this validation holds regardless of spot type)
+    // unpark the vehicle
+    await vehicle.unpark();
+
+    // and make sure that the vacant and occupied spots reflect accordingly
+    const updatedFindResults = await garageFactory.findGarage({ name: garage.name, company: garage.company });
+    expect(updatedFindResults.length).toBe(1);
+    const garageWithUnParkedBus = updatedFindResults[0];
+    const updatedVacantSpotsAgain = await garageWithUnParkedBus.getVacantSpots();
+    const updatedOccupiedSpotsAgain = await garageWithUnParkedBus.getOccupiedSpots();
+    expect(updatedVacantSpotsAgain.length).toBe(41);
+    expect(updatedOccupiedSpotsAgain.length).toBe(0);
+
+    // but since we haven't left garage yet, still should have a vehicle in the garage
+    const vehiclesInGarage = await garageWithUnParkedBus.getAllVehiclesInGarage();
+    expect(vehiclesInGarage.length).toBe(1);
+  })
+
+  it('Parking bus in motorcycle spot should error', async () => {
+    const levelNum = 1;
+    const rowNum = 0;
+    const spotNum = 6;
+
+    let thereWasAProblem = false;
+
+    try {
+      await testSingleVehicleParkingInSpot(VehicleType.Car, levelNum, rowNum, spotNum);
+    }
+    catch (err) {
+      expect(err.message).toBe(`Parking of car in motorcycle spot not allowed`);
+      thereWasAProblem = true;
+
+    }
+    // should have thrown an error
+    expect(thereWasAProblem).toBe(true);
+
+  })
+
+  it('Parking bus in compact spot should error', async () => {
+    const levelNum = 1;
+    const rowNum = 0;
+    const spotNum = 6;
+
+    let thereWasAProblem = false;
+
+    try {
+      await testSingleVehicleParkingInSpot(VehicleType.Car, levelNum, rowNum, spotNum);
+    }
+    catch (err) {
+      expect(err.message).toBe(`Parking of car in motorcycle spot not allowed`);
+      thereWasAProblem = true;
+
+    }
+    // should have thrown an error
+    expect(thereWasAProblem).toBe(true);
+  })
+
+  it('Park a bus in large spot', async () => {
+    const levelNum = 1;
+    const rowNum = 1;
+    const spotNum = 3;
+
+    await testSingleVehicleParkingInSpot(VehicleType.Car, levelNum, rowNum, spotNum);
+  })
+
+  it('Make sure you cannot park a bus in an occupied spot', async () => {
+    const levelNum = 1;
+    const rowNum = 1;
+    const spotNum = 3;
+
+    const { garageFactory, vehicleFact, garage, vehicle } = await testSingleVehicleParkingInSpot(VehicleType.Bus, levelNum, rowNum, spotNum);
+
+    const anotherVehicle = await buildVehicle(vehicleFact, VehicleType.Bus);
+    await anotherVehicle.enter(garage)
+
+    const findResults = await garageFactory.findGarage({ name: garage.name, company: garage.company });
+    expect(findResults.length).toBe(1);
+    const garageWithTwoVehicles = findResults[0];
+
+    let thereWasAProblem = false;
+
+    // try to park a vehicle in a spot that's already occupied!
+    try {
+      await anotherVehicle.park(garageWithTwoVehicles, levelNum, rowNum, spotNum);
+    } catch (err) {
+      expect(err.message).toBe(`Spot is already occupied`);
+      thereWasAProblem = true;
+    }
+
+    // should have thrown an error
+    expect(thereWasAProblem).toBe(true);
+  })
+
+})
+
+
+xdescribe('Motorcycle garage operations', () => {
   it('Park and unpark a motorcycle from motorcycle spot', async () => {
     const levelNum = 1;
     const rowNum = 0;
     const spotNum = 6;
 
-    await testSingleVehicleParkingInSpot(levelNum, rowNum, spotNum);
+    const { garageFactory, vehicleFact, garage, vehicle } = await testSingleVehicleParkingInSpot(VehicleType.Motorcycle, levelNum, rowNum, spotNum);
+
+    // now test that we can UNpark too (this validation holds regardless of spot type)
+    // unpark the vehicle
+    await vehicle.unpark();
+
+    // and make sure that the vacant and occupied spots reflect accordingly
+    const updatedFindResults = await garageFactory.findGarage({ name: garage.name, company: garage.company });
+    expect(updatedFindResults.length).toBe(1);
+    const garageWithUnParkedBike = updatedFindResults[0];
+    const updatedVacantSpotsAgain = await garageWithUnParkedBike.getVacantSpots();
+    const updatedOccupiedSpotsAgain = await garageWithUnParkedBike.getOccupiedSpots();
+    expect(updatedVacantSpotsAgain.length).toBe(41);
+    expect(updatedOccupiedSpotsAgain.length).toBe(0);
+
+    // but since we haven't left garage yet, still should have a vehicle in the garage
+    const vehiclesInGarage = await garageWithUnParkedBike.getAllVehiclesInGarage();
+    expect(vehiclesInGarage.length).toBe(1);
   })
 
-  it('Park and unpark a motorcycle from compact spot', async () => {
+  it('Park a motorcycle n compact spot', async () => {
     const levelNum = 1;
     const rowNum = 1;
     const spotNum = 0;
 
-    await testSingleVehicleParkingInSpot(levelNum, rowNum, spotNum);
+    await testSingleVehicleParkingInSpot(VehicleType.Motorcycle, levelNum, rowNum, spotNum);
   })
 
-  it('Park and unpark a motorcycle from large spot', async () => {
+  it('Park a motorcycle in large spot', async () => {
     const levelNum = 1;
     const rowNum = 1;
     const spotNum = 3;
 
-    await testSingleVehicleParkingInSpot(levelNum, rowNum, spotNum);
+    await testSingleVehicleParkingInSpot(VehicleType.Motorcycle, levelNum, rowNum, spotNum);
   })
 
-  it('Make sure you cant park a motorcycle in an occupied spot', async () => {
+  it('Make sure you cannot park a motorcycle in an occupied spot', async () => {
     const levelNum = 1;
     const rowNum = 1;
     const spotNum = 3;
 
-    const { garageFactory, vehicleFact, garage, vehicle } = await testSingleVehicleParkingInSpot(levelNum, rowNum, spotNum);
-    
+    const { garageFactory, vehicleFact, garage, vehicle } = await testSingleVehicleParkingInSpot(VehicleType.Motorcycle, levelNum, rowNum, spotNum);
+
     const anotherVehicle = await buildVehicle(vehicleFact, VehicleType.Motorcycle);
     await anotherVehicle.enter(garage)
 
@@ -119,7 +240,95 @@ describe('Garage operations', () => {
   // TODO unit test where Garage.canFit is false (requires method implementation)
 })
 
-describe('Test build garage', () => {
+// most of the basic operations of enter, leave that are common to all vehicles 
+// were already tested in the motorcycle ops test cases. here we'll just 
+// focus on the logic specific to car (namely that it can't park in motorcycle spots)
+xdescribe('Car garage operations', () => {
+  it('Park and unpark a car in compact spot', async () => {
+    const levelNum = 1;
+    const rowNum = 1;
+    const spotNum = 0;
+
+    const { garageFactory, vehicleFact, garage, vehicle } = await testSingleVehicleParkingInSpot(VehicleType.Car, levelNum, rowNum, spotNum);
+
+    // now test that we can UNpark too (this validation holds regardless of spot type)
+    // unpark the vehicle
+    await vehicle.unpark();
+
+    // and make sure that the vacant and occupied spots reflect accordingly
+    const updatedFindResults = await garageFactory.findGarage({ name: garage.name, company: garage.company });
+    expect(updatedFindResults.length).toBe(1);
+    const garageWithUnParkedCar = updatedFindResults[0];
+    const updatedVacantSpotsAgain = await garageWithUnParkedCar.getVacantSpots();
+    const updatedOccupiedSpotsAgain = await garageWithUnParkedCar.getOccupiedSpots();
+    expect(updatedVacantSpotsAgain.length).toBe(41);
+    expect(updatedOccupiedSpotsAgain.length).toBe(0);
+
+    // but since we haven't left garage yet, still should have a vehicle in the garage
+    const vehiclesInGarage = await garageWithUnParkedCar.getAllVehiclesInGarage();
+    expect(vehiclesInGarage.length).toBe(1);
+  })
+
+  it('Parking car in motorcycle spot should error', async () => {
+    const levelNum = 1;
+    const rowNum = 0;
+    const spotNum = 6;
+
+    let thereWasAProblem = false;
+
+    try {
+      await testSingleVehicleParkingInSpot(VehicleType.Car, levelNum, rowNum, spotNum);
+    }
+    catch (err) {
+      expect(err.message).toBe(`Parking of car in motorcycle spot not allowed`);
+      thereWasAProblem = true;
+
+    }
+    // should have thrown an error
+    expect(thereWasAProblem).toBe(true);
+
+  })
+
+  it('Park a car in large spot', async () => {
+    const levelNum = 1;
+    const rowNum = 1;
+    const spotNum = 3;
+
+    await testSingleVehicleParkingInSpot(VehicleType.Car, levelNum, rowNum, spotNum);
+  })
+
+  it('Make sure you cannot park a car in an occupied spot', async () => {
+    const levelNum = 1;
+    const rowNum = 1;
+    const spotNum = 3;
+
+    const { garageFactory, vehicleFact, garage, vehicle } = await testSingleVehicleParkingInSpot(VehicleType.Car, levelNum, rowNum, spotNum);
+
+    const anotherVehicle = await buildVehicle(vehicleFact, VehicleType.Car);
+    await anotherVehicle.enter(garage)
+
+    const findResults = await garageFactory.findGarage({ name: garage.name, company: garage.company });
+    expect(findResults.length).toBe(1);
+    const garageWithTwoBikes = findResults[0];
+
+    let thereWasAProblem = false;
+
+    // try to park a vehicle in a spot that's already occupied!
+    try {
+      await anotherVehicle.park(garageWithTwoBikes, levelNum, rowNum, spotNum);
+    } catch (err) {
+      expect(err.message).toBe(`Spot is already occupied`);
+      thereWasAProblem = true;
+    }
+
+    // should have thrown an error
+    expect(thereWasAProblem).toBe(true);
+  })
+
+})
+
+
+xdescribe('Test build garage', () => {
 
   it('GarageFactory base case', async () => {
     const { fact, garage } = await createTestGarage();
@@ -157,7 +366,7 @@ describe('Test build garage', () => {
   // spot that is out of bounds
 })
 
-describe('VehicleFactory tests', () => {
+xdescribe('VehicleFactory tests', () => {
 
   it('Create and retrieve bike', async () => {
     const fact = new VehicleFactory();
