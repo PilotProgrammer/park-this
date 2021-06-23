@@ -1,3 +1,4 @@
+import { VehicleType } from "src/entities/VehicleType";
 import { Garage } from "../entities/Garage";
 import { Spot } from "../entities/Spot";
 
@@ -7,16 +8,29 @@ export interface IVehicle {
   park(garage: Garage, levelNum: number, rowNum: number, spotNum: number): Promise<boolean>;
   unpark(): Promise<boolean>;
 
-  name?: string;
+  getName(): string | undefined;
 
-  color?: string;
+  getColor(): string | undefined;
 
-  licensePlateNumber: string;
+  getLicensePlateNumber(): string;
 
-  state: string;
+  getState(): string;
 
-  spots?: Spot[];
+  getVehicleType(): VehicleType;
 
-  garage?: Garage;
+  getSpots(): Spot[];
 
+  getGarage(): Garage | undefined;
+
+  getGarageId(): string | undefined;
 }
+
+
+/*
+name?: string;
+color?: string;
+licensePlateNumber: string;
+state: string;
+spots?: Spot[];
+garage?: Garage;
+  */

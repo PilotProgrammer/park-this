@@ -5,6 +5,7 @@ import { Spot } from '../entities/Spot';
 import { SpotType } from '../entities/SpotType';
 import { getDbConnection } from '../utility/getDbConnection';
 import { EntityManager } from 'typeorm';
+import { IGarageFactory } from './IGarageFactory';
 
 export type PlannedGarageRequest = {
   name: string, company: string, streetAddress: string, city: string, state: string, postalCode: string
@@ -12,19 +13,19 @@ export type PlannedGarageRequest = {
 
 export type SearchGarageRequest = { name?: string, company?: string }
 
-export class GarageFactory {
+export class GarageFactory implements IGarageFactory {
 
   public planGarage(request: PlannedGarageRequest): Garage {
     const garage = new Garage();
     const assignedGarage: Garage = Object.assign(garage, request)
 
-    assignedGarage.levels = new Array<Level>(); // TODO array of interfaces
+    assignedGarage.levels = new Array<Level>();
     return assignedGarage;
   }
 
   public addLevel(garage: Garage) {
     const newLevel = new Level();
-    newLevel.rows = new Array<ConsecutiveRow>(); // TODO array of interfaces
+    newLevel.rows = new Array<ConsecutiveRow>();
     let currentLevelCount = garage.levels.length;
     newLevel.levelNumber = currentLevelCount++;
     garage.levels.push(newLevel);
@@ -35,7 +36,7 @@ export class GarageFactory {
     this.validateLevel(garage, levelNum);
 
     const newRow = new ConsecutiveRow();
-    newRow.spots = new Array<Spot>(); // TODO array of interfaces
+    newRow.spots = new Array<Spot>();
     const targetLevel = garage.levels[levelNum];
     let currentRowCount = targetLevel.rows.length;
     newRow.rowNumber = currentRowCount++;
@@ -60,12 +61,21 @@ export class GarageFactory {
   }
 
   public async buildGarage(garage: Garage) {
-    // TODO validate that garage has at least one level, all levels have at least one row, and all rows have at least one spot
+    // make sure at least one level
+    if (garage.levels == null || garage.levels.length == 0) 
+      throw new Error('Need at least one leve in garage')
 
-    // the reason it might be confusing that there's not "db" instantiated and passed to executeTransaction here,
-    // is per https://orkhan.gitbook.io/typeorm/docs/transactions, "The most important restriction when working 
-    // in an transaction is, to ALWAYS use the provided instance of entity manager". In other words, the db will
-    // be injected in to the async function below, on it's behalf.
+    // make sure each level has at least one row, and each row has at least one spot.
+    garage.levels.forEach((level) => {
+      if (level.rows == null || level.rows.length == 0) 
+        throw new Error(`Need at least row in level ${level.levelNumber}`);
+
+      level.rows.forEach((row) => {
+        if (row.spots == null || row.spots.length == 0) 
+        throw new Error(`Need at least spot in row ${row.rowNumber}`);
+      })
+    })
+
     await (await getDbConnection()).transaction(async (db: EntityManager) => {
       const garageRepo = db.getRepository(Garage);
       await garageRepo.save(garage);
@@ -86,15 +96,12 @@ export class GarageFactory {
     this.validateLevel(garage, level)
     const targetLevel = garage.levels[level];
 
-    if (row > targetLevel.rows.length) // TODO unit test this
+    if (row > targetLevel.rows.length)
       throw new Error(`Requested row ${row} exceeds number of row on garage level ${targetLevel.rows.length}`);
   }
 
-
   private validateLevel(garage: Garage, level: number) {
-    if (level > garage.levels.length) // TODO unit test this
+    if (level > garage.levels.length)
       throw new Error(`Requested level ${level} exceeds number of levels on garage ${garage.levels.length}`);
   }
-
-
 }

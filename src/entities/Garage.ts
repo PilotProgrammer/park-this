@@ -14,6 +14,11 @@ export class Garage extends ParkThisBaseEntity {
     @Column({ type: "citext"})
     public name!: string;
 
+
+    public getName(): string {
+        return this.name;
+    }
+
     @OneToMany(type => Level, level => level.garage, { cascade: true })
     public levels!: Level[];
 

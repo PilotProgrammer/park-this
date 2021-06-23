@@ -2,11 +2,14 @@ import { GarageFactory, VehicleFactory } from '../src';
 import { SpotType } from '../src/entities/SpotType';
 import { VehicleType } from '../src/entities/VehicleType';
 import { IVehicle } from '../src/vehicles/IVehicle';
+import { AppContext } from '../src/app/AppContext';
 import { fakerator } from './index.test';
+import { IGarageFactory } from '../src/factory/IGarageFactory';
+import { IVehicleFactory } from '../src/factory/IVehicleFactory';
 
 export async function createTestGarage() {
-  const fact = new GarageFactory();
-  const garage = fact.planGarage({
+  const factory: IGarageFactory = AppContext.getGarageFactory()
+  const garage = factory.planGarage({
     name: fakerator.names.firstName(),
     company: fakerator.names.firstName(),
     streetAddress: fakerator.address.street(),
@@ -16,78 +19,78 @@ export async function createTestGarage() {
   });
 
   // add 2 levels
-  fact.addLevel(garage);
-  fact.addLevel(garage);
+  factory.addLevel(garage);
+  factory.addLevel(garage);
 
   // add 3 rows to level 0
-  fact.addRow(garage, BigInt(0));
-  fact.addRow(garage, BigInt(0));
-  fact.addRow(garage, BigInt(0));
+  factory.addRow(garage, BigInt(0));
+  factory.addRow(garage, BigInt(0));
+  factory.addRow(garage, BigInt(0));
 
   // add 2 rows to level 1 
-  fact.addRow(garage, BigInt(1));
-  fact.addRow(garage, BigInt(1));
+  factory.addRow(garage, BigInt(1));
+  factory.addRow(garage, BigInt(1));
 
   // add spots to level 0 row 1 - 8 spots
-  fact.addSpot(garage, BigInt(0), BigInt(0), SpotType.CompactSpot);
-  fact.addSpot(garage, BigInt(0), BigInt(0), SpotType.CompactSpot);
-  fact.addSpot(garage, BigInt(0), BigInt(0), SpotType.CompactSpot);
-  fact.addSpot(garage, BigInt(0), BigInt(0), SpotType.MotorcycleSpot);
-  fact.addSpot(garage, BigInt(0), BigInt(0), SpotType.MotorcycleSpot);
-  fact.addSpot(garage, BigInt(0), BigInt(0), SpotType.LargeSpot); // TODO test that a bus can't park here. start off counting enough large spots but overflows row
-  fact.addSpot(garage, BigInt(0), BigInt(0), SpotType.LargeSpot);
-  fact.addSpot(garage, BigInt(0), BigInt(0), SpotType.LargeSpot);
+  factory.addSpot(garage, BigInt(0), BigInt(0), SpotType.CompactSpot);
+  factory.addSpot(garage, BigInt(0), BigInt(0), SpotType.CompactSpot);
+  factory.addSpot(garage, BigInt(0), BigInt(0), SpotType.CompactSpot);
+  factory.addSpot(garage, BigInt(0), BigInt(0), SpotType.MotorcycleSpot);
+  factory.addSpot(garage, BigInt(0), BigInt(0), SpotType.MotorcycleSpot);
+  factory.addSpot(garage, BigInt(0), BigInt(0), SpotType.LargeSpot);
+  factory.addSpot(garage, BigInt(0), BigInt(0), SpotType.LargeSpot);
+  factory.addSpot(garage, BigInt(0), BigInt(0), SpotType.LargeSpot);
 
   // add spots to level 0 row 2 - 8 spots
-  fact.addSpot(garage, BigInt(0), BigInt(1), SpotType.MotorcycleSpot);
-  fact.addSpot(garage, BigInt(0), BigInt(1), SpotType.MotorcycleSpot);
-  fact.addSpot(garage, BigInt(0), BigInt(1), SpotType.LargeSpot); // TODO test that a bus can fit here, but not two busses in this row simultaneously
-  fact.addSpot(garage, BigInt(0), BigInt(1), SpotType.LargeSpot);
-  fact.addSpot(garage, BigInt(0), BigInt(1), SpotType.LargeSpot);
-  fact.addSpot(garage, BigInt(0), BigInt(1), SpotType.LargeSpot);
-  fact.addSpot(garage, BigInt(0), BigInt(1), SpotType.LargeSpot);
-  fact.addSpot(garage, BigInt(0), BigInt(1), SpotType.LargeSpot);
+  factory.addSpot(garage, BigInt(0), BigInt(1), SpotType.MotorcycleSpot);
+  factory.addSpot(garage, BigInt(0), BigInt(1), SpotType.MotorcycleSpot);
+  factory.addSpot(garage, BigInt(0), BigInt(1), SpotType.LargeSpot);
+  factory.addSpot(garage, BigInt(0), BigInt(1), SpotType.LargeSpot);
+  factory.addSpot(garage, BigInt(0), BigInt(1), SpotType.LargeSpot);
+  factory.addSpot(garage, BigInt(0), BigInt(1), SpotType.LargeSpot);
+  factory.addSpot(garage, BigInt(0), BigInt(1), SpotType.LargeSpot);
+  factory.addSpot(garage, BigInt(0), BigInt(1), SpotType.LargeSpot);
 
   // add spots to level 0 row 3 - 10 spots
-  fact.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot); // TODO test two busses can fit in this row
-  fact.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
-  fact.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
-  fact.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
-  fact.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
-  fact.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
-  fact.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
-  fact.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
-  fact.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
-  fact.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
+  factory.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
+  factory.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
+  factory.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
+  factory.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
+  factory.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
+  factory.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
+  factory.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
+  factory.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
+  factory.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
+  factory.addSpot(garage, BigInt(0), BigInt(2), SpotType.LargeSpot);
 
   // add spots to level 1 row 0 - 7 spots
-  fact.addSpot(garage, BigInt(1), BigInt(0), SpotType.MotorcycleSpot); // only bikes in this row
-  fact.addSpot(garage, BigInt(1), BigInt(0), SpotType.MotorcycleSpot);
-  fact.addSpot(garage, BigInt(1), BigInt(0), SpotType.MotorcycleSpot);
-  fact.addSpot(garage, BigInt(1), BigInt(0), SpotType.MotorcycleSpot);
-  fact.addSpot(garage, BigInt(1), BigInt(0), SpotType.MotorcycleSpot);
-  fact.addSpot(garage, BigInt(1), BigInt(0), SpotType.MotorcycleSpot);
-  fact.addSpot(garage, BigInt(1), BigInt(0), SpotType.MotorcycleSpot);
+  factory.addSpot(garage, BigInt(1), BigInt(0), SpotType.MotorcycleSpot);
+  factory.addSpot(garage, BigInt(1), BigInt(0), SpotType.MotorcycleSpot);
+  factory.addSpot(garage, BigInt(1), BigInt(0), SpotType.MotorcycleSpot);
+  factory.addSpot(garage, BigInt(1), BigInt(0), SpotType.MotorcycleSpot);
+  factory.addSpot(garage, BigInt(1), BigInt(0), SpotType.MotorcycleSpot);
+  factory.addSpot(garage, BigInt(1), BigInt(0), SpotType.MotorcycleSpot);
+  factory.addSpot(garage, BigInt(1), BigInt(0), SpotType.MotorcycleSpot);
 
   // add spots to level 1 row 1 - 8 spots
-  fact.addSpot(garage, BigInt(1), BigInt(1), SpotType.CompactSpot);
-  fact.addSpot(garage, BigInt(1), BigInt(1), SpotType.CompactSpot);
-  fact.addSpot(garage, BigInt(1), BigInt(1), SpotType.CompactSpot);
-  fact.addSpot(garage, BigInt(1), BigInt(1), SpotType.LargeSpot); // TODO bus tries to park here, far enough from edge of the row, but not enough large spots
-  fact.addSpot(garage, BigInt(1), BigInt(1), SpotType.LargeSpot);
-  fact.addSpot(garage, BigInt(1), BigInt(1), SpotType.LargeSpot);
-  fact.addSpot(garage, BigInt(1), BigInt(1), SpotType.CompactSpot);
-  fact.addSpot(garage, BigInt(1), BigInt(1), SpotType.CompactSpot);
+  factory.addSpot(garage, BigInt(1), BigInt(1), SpotType.CompactSpot);
+  factory.addSpot(garage, BigInt(1), BigInt(1), SpotType.CompactSpot);
+  factory.addSpot(garage, BigInt(1), BigInt(1), SpotType.CompactSpot);
+  factory.addSpot(garage, BigInt(1), BigInt(1), SpotType.LargeSpot);
+  factory.addSpot(garage, BigInt(1), BigInt(1), SpotType.LargeSpot);
+  factory.addSpot(garage, BigInt(1), BigInt(1), SpotType.LargeSpot);
+  factory.addSpot(garage, BigInt(1), BigInt(1), SpotType.CompactSpot);
+  factory.addSpot(garage, BigInt(1), BigInt(1), SpotType.CompactSpot);
 
-  await fact.buildGarage(garage);
-  return { fact, garage };
+  await factory.buildGarage(garage);
+  return { fact: factory, garage };
 }
 
 export function validateVehicle(foundVehicle: IVehicle, originalVehicle: IVehicle) {
-  expect(foundVehicle.color).toBe(originalVehicle.color);
-  expect(foundVehicle.name).toBe(originalVehicle.name);
-  expect(foundVehicle.licensePlateNumber).toBe(originalVehicle.licensePlateNumber);
-  expect(foundVehicle.state).toBe(originalVehicle.state);
+  expect(foundVehicle.getColor()).toBe(originalVehicle.getColor());
+  expect(foundVehicle.getName()).toBe(originalVehicle.getName());
+  expect(foundVehicle.getLicensePlateNumber()).toBe(originalVehicle.getLicensePlateNumber());
+  expect(foundVehicle.getState()).toBe(originalVehicle.getState());
 }
 
 export async function buildVehicle(fact: VehicleFactory, type: VehicleType) {
@@ -100,8 +103,11 @@ export async function buildVehicle(fact: VehicleFactory, type: VehicleType) {
   });
 }
 
-export async function testSingleVehicleParkingInSpot(vehicleType: VehicleType, levelNum: number, rowNum: number, spotNum: number) {
-  const vehicleFact = new VehicleFactory();
+export async function testSingleVehicleParkingInSpot(vehicleType: VehicleType, levelNum: number,
+  rowNum: number, spotNum: number, expectedVacantSpotsAfterParking: number,
+  expectedOccupiedSpotsAfterParking: number) {
+
+  const vehicleFact: IVehicleFactory = AppContext.getVehicleFactory();
   const vehicle = await buildVehicle(vehicleFact, vehicleType);
 
   const { fact: garageFactory, garage } = await createTestGarage();
@@ -120,8 +126,8 @@ export async function testSingleVehicleParkingInSpot(vehicleType: VehicleType, l
   const garageWithVehicle = findResults[0];
   const updatedVacantSpots = await garageWithVehicle.getVacantSpots();
   const updatedOccupiedSpots = await garageWithVehicle.getOccupiedSpots();
-  expect(updatedVacantSpots.length).toBe(40);
-  expect(updatedOccupiedSpots.length).toBe(1);
+  expect(updatedVacantSpots.length).toBe(expectedVacantSpotsAfterParking);
+  expect(updatedOccupiedSpots.length).toBe(expectedOccupiedSpotsAfterParking);
 
   return { garageFactory, vehicleFact, garage, vehicle }
 }

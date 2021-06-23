@@ -59,7 +59,7 @@ export class VehicleFactory {
     const vehicles = result.map((fromVehicle) => {
       let toVehicle: IVehicle;
 
-      switch (fromVehicle.vehicleType) {
+      switch (fromVehicle.getVehicleType()) {
         case VehicleType.Motorcycle:
           toVehicle = new Motorcycle();
           break;
@@ -72,10 +72,6 @@ export class VehicleFactory {
       }
 
       toVehicle = Object.assign(toVehicle, fromVehicle);
-
-      // if (toVehicle.spots == null) {
-      //   toVehicle.spots = [];
-      // }
 
       return toVehicle;
     });
