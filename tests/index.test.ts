@@ -3,7 +3,9 @@ import { Connection, EntityManager, getConnection, getConnectionManager, QueryRu
 var Fakerator = require("fakerator");
 
 import { ConsecutiveRow, Garage, Level, Spot, Vehicle, VehicleFactory } from '../src'
+import { AppContext } from '../src/app/AppContext';
 import { VehicleType } from '../src/entities/VehicleType';
+import { IVehicleFactory } from '../src/factory/IVehicleFactory';
 import { getDbConnection } from '../src/utility/getDbConnection';
 import { Bus } from '../src/vehicles/Bus';
 import { Car } from '../src/vehicles/Car';
@@ -162,7 +164,7 @@ describe('Motorcycle garage operations', () => {
   })
 
   it('Enter and leave garage', async () => {
-    const vehicleFact = new VehicleFactory();
+    const vehicleFact: IVehicleFactory = AppContext.getVehicleFactory();
     const bike = await buildVehicle(vehicleFact, VehicleType.Motorcycle);
 
     const { fact, garage } = await createTestGarage();
@@ -322,7 +324,7 @@ describe('Test build garage', () => {
 describe('VehicleFactory tests', () => {
 
   it('Create and retrieve bike', async () => {
-    const fact = new VehicleFactory();
+    const fact: IVehicleFactory = AppContext.getVehicleFactory();
     const bike = await buildVehicle(fact, VehicleType.Motorcycle);
     expect(bike instanceof Motorcycle).toBeTruthy();
 
@@ -335,7 +337,7 @@ describe('VehicleFactory tests', () => {
   })
 
   it('Create and retrieve car', async () => {
-    const fact = new VehicleFactory();
+    const fact: IVehicleFactory = AppContext.getVehicleFactory();
     const car = await buildVehicle(fact, VehicleType.Car);
     expect(car instanceof Car).toBeTruthy();
 
@@ -348,7 +350,7 @@ describe('VehicleFactory tests', () => {
   })
 
   it('Create and retrieve bus', async () => {
-    const fact = new VehicleFactory();
+    const fact: IVehicleFactory = AppContext.getVehicleFactory();
     const bus = await buildVehicle(fact, VehicleType.Bus);
     expect(bus instanceof Bus).toBeTruthy();
 
