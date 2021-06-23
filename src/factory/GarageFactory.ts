@@ -76,7 +76,7 @@ export class GarageFactory {
     const repo = (await getDbConnection()).getRepository(Garage);
     const result = await repo.find({
       where: searchParams,
-      relations: ['levels', 'levels.rows', 'levels.rows.spots', 'vehicles']
+      relations: ['levels', 'levels.rows', 'levels.rows.spots', 'vehicles', 'levels.rows.spots.occupyingVehicle']
     });
 
     return result;

@@ -51,10 +51,52 @@ export class Garage extends ParkThisBaseEntity {
     }
 
     public async getVacantSpots() {
+        const occupiedFilter = false;    
+        const collectedSpots = this.collectSpots(occupiedFilter);
+        return collectedSpots;
+    }
 
+    private collectSpots(occupiedFilter: boolean) {
+        let collectedSpots: SpotDefinition[] = [];
+
+        // go through each level, row, and spot of the garage.
+        // if a spot is empty, then add to vacant spots
+        this.levels.forEach(level => {
+            level.rows.forEach(row => {
+                // filter out vacant spots
+                const spotDefinitions = row.spots.filter(spot => {
+                    if (occupiedFilter == true) {
+                        return spot.occupyingVehicle != null ? true : false;
+                    } else {
+                        return spot.occupyingVehicle == null ? true : false;
+                    }
+                    // map to spot definition to flattent the hierarchy.
+                }).map(spot => {
+                    const spotDefinition: SpotDefinition = {
+                        level: level.levelNumber,
+                        row: row.rowNumber,
+                        spot: spot.spotNumber
+                    };
+
+                    // const returnDef = (spot.occupyingVehicle != null) ? spotDefinition : null
+                    return spotDefinition;
+                });
+
+                collectedSpots = collectedSpots.concat(spotDefinitions);
+            });
+        });
+        return collectedSpots;
     }
 
     public async getOccupiedSpots() {
-
+        const occupiedFilter = true;    
+        const collectedSpots = this.collectSpots(occupiedFilter);
+        return collectedSpots;
     }
+}
+
+export type SpotDefinition = {
+    level: number,
+    row: number,
+    spot: number
 }

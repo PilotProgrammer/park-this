@@ -99,3 +99,29 @@ export async function buildVehicle(fact: VehicleFactory, type: VehicleType) {
     state: fakerator.names.firstName(),
   });
 }
+
+export async function testSingleVehicleParkingInSpot(levelNum: number, rowNum: number, spotNum: number) {
+  const vehicleFact = new VehicleFactory();
+  const vehicle = await buildVehicle(vehicleFact, VehicleType.Motorcycle);
+
+  const { fact: garageFactory, garage } = await createTestGarage();
+  const vacantSpots = await garage.getVacantSpots();
+  const occupiedSpots = await garage.getOccupiedSpots();
+  // test garage has 41 calls to .addSpot()
+  expect(vacantSpots.length).toBe(41);
+  expect(occupiedSpots.length).toBe(0);
+
+  await vehicle.enter(garage);
+  await vehicle.park(garage, levelNum, rowNum, spotNum);
+
+  // reaquire garage after vehicle entered and parked
+  const findResults = await garageFactory.findGarage({ name: garage.name, company: garage.company });
+  expect(findResults.length).toBe(1);
+  const garageWithBike = findResults[0];
+  const updatedVacantSpots = await garageWithBike.getVacantSpots();
+  const updatedOccupiedSpots = await garageWithBike.getOccupiedSpots();
+  expect(updatedVacantSpots.length).toBe(40);
+  expect(updatedOccupiedSpots.length).toBe(1);
+
+  return { garageFactory, vehicleFact, garage, vehicle }
+}

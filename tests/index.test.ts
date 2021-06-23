@@ -8,16 +8,12 @@ import { getDbConnection } from '../src/utility/getDbConnection';
 import { Bus } from '../src/vehicles/Bus';
 import { Car } from '../src/vehicles/Car';
 import { Motorcycle } from '../src/vehicles/Motorcycle';
-import { createTestGarage, buildVehicle, validateVehicle } from './TestCommon';
+import { createTestGarage, buildVehicle, validateVehicle, testSingleVehicleParkingInSpot } from './TestCommon';
 
 export const fakerator = Fakerator("en-AU"); // cuz there's not one for en-US
 
 
 beforeAll(async () => {
-
-});
-
-beforeEach(async () => {
   (await getDbConnection()).transaction(async (db: EntityManager) => {
     // .clear() translates to "truncate", and doens't work in postgres because foreign key exists, even though it's set to "oncascade: delete"
     const garageRepo = db.getRepository(Garage);
@@ -28,11 +24,68 @@ beforeEach(async () => {
   })
 });
 
+beforeEach(async () => {
+
+});
+
 // afterAll(() => connMan.disconnect());
 
 
 describe('Garage operations', () => {
-  it('Enter garage', async () => {
+  it('Park and unpark a motorcycle from motorcycle spot', async () => {
+    const levelNum = 1;
+    const rowNum = 0;
+    const spotNum = 6;
+
+    await testSingleVehicleParkingInSpot(levelNum, rowNum, spotNum);
+  })
+
+  it('Park and unpark a motorcycle from compact spot', async () => {
+    const levelNum = 1;
+    const rowNum = 1;
+    const spotNum = 0;
+
+    await testSingleVehicleParkingInSpot(levelNum, rowNum, spotNum);
+  })
+
+  it('Park and unpark a motorcycle from large spot', async () => {
+    const levelNum = 1;
+    const rowNum = 1;
+    const spotNum = 3;
+
+    await testSingleVehicleParkingInSpot(levelNum, rowNum, spotNum);
+  })
+
+  it('Make sure you cant park a motorcycle in an occupied spot', async () => {
+    const levelNum = 1;
+    const rowNum = 1;
+    const spotNum = 3;
+
+    const { garageFactory, vehicleFact, garage, vehicle } = await testSingleVehicleParkingInSpot(levelNum, rowNum, spotNum);
+    
+    const anotherVehicle = await buildVehicle(vehicleFact, VehicleType.Motorcycle);
+    await anotherVehicle.enter(garage)
+
+    const findResults = await garageFactory.findGarage({ name: garage.name, company: garage.company });
+    expect(findResults.length).toBe(1);
+    const garageWithTwoBikes = findResults[0];
+
+    let thereWasAProblem = false;
+
+    // try to park a vehicle in a spot that's already occupied!
+    try {
+      await anotherVehicle.park(garageWithTwoBikes, levelNum, rowNum, spotNum);
+    } catch (err) {
+      expect(err.message).toBe(`Spot is already occupied`);
+      thereWasAProblem = true;
+    }
+
+    // should have thrown an error
+    expect(thereWasAProblem).toBe(true);
+  })
+
+
+  it('Enter and leave garage', async () => {
     const vehicleFact = new VehicleFactory();
     const bus = await buildVehicle(vehicleFact, VehicleType.Bus);
 
@@ -52,12 +105,11 @@ describe('Garage operations', () => {
     // leave garage
     await bus.leave();
 
-    // check that garage says there's a bus in it
+    // check that garage is empty
     const findResultsLeave = await fact.findGarage({ name: garage.name, company: garage.company });
     expect(findResultsLeave.length).toBe(1);
     const hopefullyNoVehiclesInGarage = await findResultsLeave[0].getAllVehiclesInGarage();
     expect(hopefullyNoVehiclesInGarage.length).toBe(0);
-
   })
 
   // TODO edge cases
@@ -146,8 +198,5 @@ describe('VehicleFactory tests', () => {
     validateVehicle(foundBus, bus);
   })
 })
-
-
-
 
 

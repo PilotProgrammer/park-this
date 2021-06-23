@@ -19,6 +19,9 @@ export class Spot extends ParkThisBaseEntity {
     @ManyToOne(type => Vehicle, vehicle => vehicle.spots, { cascade: true })
     public occupyingVehicle!: Vehicle;
 
+    @Column({ nullable: true })
+    public occupyingVehicleId?: string
+
     @Column("enum", { enum: SpotType })
     public spotType!: SpotType;
 }

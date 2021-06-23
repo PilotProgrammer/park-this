@@ -5,7 +5,7 @@ import { Garage } from './Garage';
 import { ParkThisBaseEntity } from './ParkThisBaseEntity';
 import { Spot } from './Spot';
 import { VehicleType } from './VehicleType';
-import { IVehicle } from 'src/vehicles/IVehicle';
+import { IVehicle } from '../vehicles/IVehicle';
 
 @Entity("Vehicle")
 export abstract class Vehicle extends ParkThisBaseEntity implements IVehicle {
@@ -41,24 +41,40 @@ export abstract class Vehicle extends ParkThisBaseEntity implements IVehicle {
     if (await garage.canFit(this) == false)
       throw new Error(`Garage can't fit this vehicle`);
 
-    this.garage = garage;
-
     await (await getDbConnection()).transaction(async (db: EntityManager) => {
-      const repo = db.getRepository(Vehicle);
-      await repo.save(this);
+      await db.createQueryBuilder()
+        .update(Vehicle)
+        .set({ garageId: garage.id })
+        .where("id = :id", { id: this.id })
+        .execute();
     })
 
     return true;
   }
 
   public async leave(): Promise<boolean> {
-    const db = await getDbConnection();
-    await db.getRepository(Vehicle).update(this.id, { garageId: undefined });
+    await (await getDbConnection()).transaction(async (db: EntityManager) => {
+      await db.createQueryBuilder()
+        .update(Vehicle)
+        .set({ garageId: undefined })
+        .where("id = :id", { id: this.id })
+        .execute();
+    })
 
     return true;
   }
 
-
-  public abstract park(spot: Spot): Promise<boolean>;
+  public abstract park(garage: Garage, levelNum: number, rowNum: number, spotNum: number): Promise<boolean>;
   public abstract unpark(): Promise<boolean>;
+
+  protected validateGarageLevelAndRow(garage: Garage, levelNum: number, rowNum: number) {
+    if (garage == null)
+      throw new Error(`Garage must be provided`);
+
+    if (levelNum < 0 || levelNum >= garage.levels.length)
+      throw new Error(`Level number doesn't exist in garage`);
+
+    if (rowNum < 0 || rowNum >= garage.levels[levelNum].rows.length)
+      throw new Error(`Row number doesn't exist in requested level`);
+  }
 }

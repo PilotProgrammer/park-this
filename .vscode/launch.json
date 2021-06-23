@@ -24,6 +24,8 @@
         "--inspect-brk",
         "${workspaceRoot}/node_modules/.bin/jest",
         "--runInBand",
+        // "--unhandled-rejections=strict",
+        // "--detectOpenHandles",
         "--coverage=false",
         "--testTimeout=990000",
       ],
