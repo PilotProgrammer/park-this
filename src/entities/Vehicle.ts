@@ -32,9 +32,12 @@ export abstract class Vehicle extends ParkThisBaseEntity implements IVehicle {
   @Column("enum", { enum: VehicleType })
   public vehicleType!: VehicleType;
 
+  // a given vehicle of given type may occupy 1 or more spots
   @OneToMany(type => Spot, spot => spot.occupyingVehicle)
   public spots!: Spot[];
 
+  // we might not have any this.spots, but we might have a this.garage since you 
+  // can be in the garage driving around, and not parked yet
   @ManyToOne(type => Garage, garage => garage.vehicles, { onDelete: "SET NULL", nullable: true })
   public garage?: Garage;
 
@@ -73,7 +76,7 @@ export abstract class Vehicle extends ParkThisBaseEntity implements IVehicle {
     return this.garageId;
   }
 
-  // validates and executes the desire for a vehicle to enter a garage
+  // validates and executes the desire for a vehicle to enter a garage, but not actually parks it yet
   public async enter(garage: Garage) {
     if (this.garage != null && this.garage.id != garage.id)
       throw new Error(`Can't enter a new garage ${garage.id} until vehicle leaves current garage ${this.garage.id}`);
@@ -118,7 +121,7 @@ export abstract class Vehicle extends ParkThisBaseEntity implements IVehicle {
     return true;
   }
 
-  // once vehicle is in the garage, part is in the spot as indicated by level, row, and spot number.
+  // once vehicle is in the garage, park is in the spot as indicated by level, row, and spot number.
   // the "spotNum" actually indicates the STARTING spot number.
   // this method works for buses, cars, and bikes. 
   // because each vehicle implements spotsRequiredForVehicle(), cars/bike will only have ONE entry in occupiedSpots,

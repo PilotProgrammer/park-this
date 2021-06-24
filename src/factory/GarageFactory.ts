@@ -1,3 +1,4 @@
+import { type } from 'os';
 import { EntityManager } from 'typeorm';
 import { ConsecutiveRow } from '../entities/ConsecutiveRow';
 import { Garage } from '../entities/Garage';
@@ -15,6 +16,7 @@ export type SearchGarageRequest = { name?: string, company?: string }
 
 export class GarageFactory implements IGarageFactory {
 
+  // returns the blueprint for a garage ...
   public planGarage(request: PlannedGarageRequest): Garage {
     const garage = new Garage();
     const assignedGarage: Garage = Object.assign(garage, request)
@@ -22,7 +24,8 @@ export class GarageFactory implements IGarageFactory {
     assignedGarage.levels = new Array<Level>();
     return assignedGarage;
   }
-
+  
+  // ... then you add levels to the garage ...
   public addLevel(garage: Garage) {
     const newLevel = new Level();
     newLevel.rows = new Array<ConsecutiveRow>();
@@ -31,6 +34,7 @@ export class GarageFactory implements IGarageFactory {
     garage.levels.push(newLevel);
   }
 
+  // ... add rows to the levels ...
   public addRow(garage: Garage, level: BigInt) {
     const levelNum = Number(level);
     this.validateLevel(garage, levelNum);
@@ -45,6 +49,7 @@ export class GarageFactory implements IGarageFactory {
     return garage;
   }
 
+  // ... and add spots to the rows, of the requested type ... 
   public addSpot(garage: Garage, level: BigInt, row: BigInt, spotType: SpotType) {
     const levelNum = Number(level);
     const rowNum = Number(row);
@@ -60,10 +65,11 @@ export class GarageFactory implements IGarageFactory {
     return garage;
   }
 
+  // FINALLY, after all that planning, persist the garage in the database
   public async buildGarage(garage: Garage) {
     // make sure at least one level
     if (garage.levels == null || garage.levels.length == 0) 
-      throw new Error('Need at least one leve in garage')
+      throw new Error('Need at least one level in garage')
 
     // make sure each level has at least one row, and each row has at least one spot.
     garage.levels.forEach((level) => {
@@ -82,6 +88,7 @@ export class GarageFactory implements IGarageFactory {
     })
   }
 
+  // get the garage, and the related levels, rows, etc as specified by "relations"
   public async findGarage(searchParams: SearchGarageRequest) {
     const repo = (await getDbConnection()).getRepository(Garage);
     const result = await repo.find({

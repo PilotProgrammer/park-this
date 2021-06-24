@@ -15,6 +15,9 @@ export type SearchVehicleRequest = { licensePlateNumber: string, state: string }
 
 export class VehicleFactory {
 
+  // build vehicle with specs provided in BuildVehicleRequest, and save to database
+  // returns instance of IVehicle where backing class depends on vehicle type 
+  // specified in BuildVehicleRequest.
   public async buildVehicle(request: BuildVehicleRequest): Promise<IVehicle> {
     let vehicle: IVehicle;
 
@@ -37,12 +40,10 @@ export class VehicleFactory {
       await repo.save(vehicle);
     })
 
-    // vehicle.spots = [];
-    // vehicle.garage = null;
-
     return vehicle;
   }
 
+  // get list of IVehicle instances from database matching SearchVehicleRequest criteria
   public async findVehicle(searchParams: SearchVehicleRequest) {
     const repo = (await getDbConnection()).getRepository(Vehicle);
     const result = await repo.find({
@@ -55,6 +56,10 @@ export class VehicleFactory {
     return vehicles;
   }
 
+  // convert generic database vehicle list to appropriate instances of IVehicle 
+  // this is also used in Garage to convert the referenced array of database vehicles to the 
+  // appropriate IVehicle instance. arguably this is not good architeture and needs to be fixed
+  // when truly isolating the domain layer from the persistance layer/entities
   public async databaseVehiclesToDomainModel(result: Vehicle[]) {
     const vehicles = result.map((fromVehicle) => {
       let toVehicle: IVehicle;
