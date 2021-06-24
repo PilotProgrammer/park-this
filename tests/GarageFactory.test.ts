@@ -1,19 +1,4 @@
-import { assert } from 'console';
-import { Connection, EntityManager, getConnection, getConnectionManager, QueryRunner, TreeChildren } from 'typeorm';
-
-import { ConsecutiveRow, Garage, Level, Spot, Vehicle, VehicleFactory } from '../src'
-import { AppContext } from '../src/app/AppContext';
-import { VehicleType } from '../src/entities/VehicleType';
-import { IVehicleFactory } from '../src/factory/IVehicleFactory';
-import { getDbConnection } from '../src/utility/getDbConnection';
-import { Bus } from '../src/vehicles/Bus';
-import { Car } from '../src/vehicles/Car';
-import { Motorcycle } from '../src/vehicles/Motorcycle';
-import { createTestGarage, buildVehicle, validateVehicle, testSingleVehicleParkingInSpot, cleanDatabase } from './TestCommon';
-
-beforeAll(async () => {
-  await cleanDatabase();
-});
+import { createTestGarage } from './TestCommon';
 
 
 describe('Test build garage', () => {
@@ -45,8 +30,6 @@ describe('Test build garage', () => {
     // verify count of all spots in level 1
     expect(foundGarage.levels[1].rows[0].spots.length).toBe(7);
     expect(foundGarage.levels[1].rows[1].spots.length).toBe(8);
-
-    console.log('test end')
   })
 
   // TODO edge cases when building garage

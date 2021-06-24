@@ -1,12 +1,13 @@
+import { getConnection, getConnectionManager } from "typeorm";
 import { ConsecutiveRow } from "../entities/ConsecutiveRow";
 import { Garage } from "../entities/Garage";
 import { Level } from "../entities/Level";
 import { Spot } from "../entities/Spot";
 import { Vehicle } from "../entities/Vehicle";
-import { Connection, createConnection, EntityManager, getConnection, getConnectionManager } from "typeorm";
 
 const connectionName = "default";
 
+// TODO - drive database configuration with config file or environment variables
 export const getDbConnection = async () => {
   const connectionManager = getConnectionManager();
 

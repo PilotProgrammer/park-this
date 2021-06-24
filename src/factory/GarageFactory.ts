@@ -1,10 +1,10 @@
+import { EntityManager } from 'typeorm';
 import { ConsecutiveRow } from '../entities/ConsecutiveRow';
 import { Garage } from '../entities/Garage';
 import { Level } from '../entities/Level';
 import { Spot } from '../entities/Spot';
 import { SpotType } from '../entities/SpotType';
 import { getDbConnection } from '../utility/getDbConnection';
-import { EntityManager } from 'typeorm';
 import { IGarageFactory } from './IGarageFactory';
 
 export type PlannedGarageRequest = {

@@ -1,27 +1,27 @@
 
 import { Column, Entity, ManyToOne } from 'typeorm';
-
-import { ParkThisBaseEntity } from './ParkThisBaseEntity';
-
 import { ConsecutiveRow } from './ConsecutiveRow';
-import { Vehicle } from './Vehicle';
+import { ParkThisBaseEntity } from './ParkThisBaseEntity';
 import { SpotType } from './SpotType';
+import { Vehicle } from './Vehicle';
+
+
 
 @Entity("Spot")
 export class Spot extends ParkThisBaseEntity {
 
-    @Column()
-    public spotNumber!: number;
-  
-    @ManyToOne(type => ConsecutiveRow, row => row.spots, { onDelete: "CASCADE", nullable: false})
-    public parentRow!: ConsecutiveRow;
+  @Column()
+  public spotNumber!: number;
 
-    @ManyToOne(type => Vehicle, vehicle => vehicle.spots, { cascade: true, nullable: true })
-    public occupyingVehicle?: Vehicle;
+  @ManyToOne(type => ConsecutiveRow, row => row.spots, { onDelete: "CASCADE", nullable: false })
+  public parentRow!: ConsecutiveRow;
 
-    @Column({ nullable: true })
-    public occupyingVehicleId?: string
+  @ManyToOne(type => Vehicle, vehicle => vehicle.spots, { cascade: true, nullable: true })
+  public occupyingVehicle?: Vehicle;
 
-    @Column("enum", { enum: SpotType })
-    public spotType!: SpotType;
+  @Column({ nullable: true })
+  public occupyingVehicleId?: string
+
+  @Column("enum", { enum: SpotType })
+  public spotType!: SpotType;
 }

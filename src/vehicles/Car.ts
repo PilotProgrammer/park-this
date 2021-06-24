@@ -1,10 +1,6 @@
-import { getDbConnection } from "../utility/getDbConnection";
-import { EntityManager } from "typeorm";
-import { Garage } from "../entities/Garage";
-import { Spot } from "../entities/Spot";
+import { SpotType } from "../entities/SpotType";
 import { Vehicle } from "../entities/Vehicle";
 import { IVehicle } from "./IVehicle";
-import { SpotType } from "../entities/SpotType";
 
 export class Car extends Vehicle implements IVehicle {
 

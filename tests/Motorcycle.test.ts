@@ -1,20 +1,10 @@
 
-import { assert } from 'console';
-import { Connection, EntityManager, getConnection, getConnectionManager, QueryRunner, TreeChildren } from 'typeorm';
-
-import { ConsecutiveRow, Garage, Level, Spot, Vehicle, VehicleFactory } from '../src'
 import { AppContext } from '../src/app/AppContext';
 import { VehicleType } from '../src/entities/VehicleType';
 import { IVehicleFactory } from '../src/factory/IVehicleFactory';
-import { getDbConnection } from '../src/utility/getDbConnection';
 import { Bus } from '../src/vehicles/Bus';
-import { Car } from '../src/vehicles/Car';
-import { Motorcycle } from '../src/vehicles/Motorcycle';
-import { createTestGarage, buildVehicle, validateVehicle, testSingleVehicleParkingInSpot, cleanDatabase } from './TestCommon';
+import { buildVehicle, createTestGarage, testSingleVehicleParkingInSpot } from './TestCommon';
 
-beforeAll(async () => {
-  await cleanDatabase();
-});
 
 describe('Motorcycle garage operations', () => {
   it('Park and unpark a motorcycle from motorcycle spot', async () => {

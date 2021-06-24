@@ -1,12 +1,14 @@
-import { getConnectionManager, getConnection } from "typeorm";
-
 import { ConsecutiveRow } from "./entities/ConsecutiveRow";
 import { Garage } from "./entities/Garage";
 import { Level } from "./entities/Level";
 import { Spot } from "./entities/Spot";
 import { Vehicle } from "./entities/Vehicle";
+import { IVehicle } from "./vehicles/IVehicle";
 import { GarageFactory } from "./factory/GarageFactory";
 import { VehicleFactory } from "./factory/VehicleFactory";
+import { IGarageFactory } from "./factory/IGarageFactory";
+import { IVehicleFactory } from "./factory/IVehicleFactory";
+
 
 export {
   ConsecutiveRow,
@@ -15,5 +17,9 @@ export {
   Spot,
   Vehicle,
   GarageFactory,
-  VehicleFactory
-}
+  VehicleFactory,
+  IGarageFactory,
+  IVehicleFactory,
+  IVehicle
+};
+

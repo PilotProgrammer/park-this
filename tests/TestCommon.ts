@@ -1,11 +1,11 @@
-import { Garage, GarageFactory, Vehicle, VehicleFactory } from '../src';
+import { Garage, Vehicle, VehicleFactory } from '../src';
+import { AppContext } from '../src/app/AppContext';
 import { SpotType } from '../src/entities/SpotType';
 import { VehicleType } from '../src/entities/VehicleType';
-import { IVehicle } from '../src/vehicles/IVehicle';
-import { AppContext } from '../src/app/AppContext';
 import { IGarageFactory } from '../src/factory/IGarageFactory';
 import { IVehicleFactory } from '../src/factory/IVehicleFactory';
 import { getDbConnection } from '../src/utility/getDbConnection';
+import { IVehicle } from '../src/vehicles/IVehicle';
 var Fakerator = require("fakerator");
 
 export const fakerator = Fakerator("en-AU"); // cuz there's not one for en-US

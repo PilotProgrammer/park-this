@@ -1,6 +1,4 @@
-import {
-  PrimaryGeneratedColumn, Column, BaseEntity
-} from 'typeorm'
+import { Column, PrimaryGeneratedColumn } from 'typeorm'
 
 export abstract class ParkThisBaseEntity {
   @PrimaryGeneratedColumn("uuid")

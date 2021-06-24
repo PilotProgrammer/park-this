@@ -1,12 +1,12 @@
 
+import { Column, Entity, EntityManager, ManyToOne, OneToMany } from 'typeorm';
 import { getDbConnection } from '../utility/getDbConnection';
-import { Column, Entity, EntityManager, getConnection, JoinColumn, ManyToOne, OneToMany, OneToOne } from 'typeorm';
+import { IVehicle } from '../vehicles/IVehicle';
 import { Garage } from './Garage';
 import { ParkThisBaseEntity } from './ParkThisBaseEntity';
 import { Spot } from './Spot';
-import { VehicleType } from './VehicleType';
-import { IVehicle } from '../vehicles/IVehicle';
 import { SpotType } from './SpotType';
+import { VehicleType } from './VehicleType';
 
 @Entity("Vehicle")
 export abstract class Vehicle extends ParkThisBaseEntity implements IVehicle {

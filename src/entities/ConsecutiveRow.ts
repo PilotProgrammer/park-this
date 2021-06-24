@@ -1,6 +1,6 @@
 import { Column, Entity, ManyToOne, OneToMany } from 'typeorm';
-import { ParkThisBaseEntity } from './ParkThisBaseEntity';
 import { Level } from './Level';
+import { ParkThisBaseEntity } from './ParkThisBaseEntity';
 import { Spot } from './Spot';
 
 @Entity("ConsecutiveRow")
