@@ -1,6 +1,8 @@
 # park-this
 iPark and ParkMe were already taken, so ParkThis was a good 3rd choice. "Real time" parking garage based on a code challenge.
 
+** "motorcycle" and "bike" are used interchangeably in the code
+
 Rules of the game:
 1. The parking garage has multiple levels. Each level has multiple rows of spots.
 2. The parking garage can park motorcycles, cars, and buses.

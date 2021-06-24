@@ -36,6 +36,7 @@
     "typescript": "^4.3.4"
   },
   "jest": {
+    "globalSetup": "./tests/ClearDatabase.ts",
     "automock": false,
     "testEnvironment": "node",
     "collectCoverage": true,

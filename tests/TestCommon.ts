@@ -1,11 +1,15 @@
-import { GarageFactory, VehicleFactory } from '../src';
+import { Garage, GarageFactory, Vehicle, VehicleFactory } from '../src';
 import { SpotType } from '../src/entities/SpotType';
 import { VehicleType } from '../src/entities/VehicleType';
 import { IVehicle } from '../src/vehicles/IVehicle';
 import { AppContext } from '../src/app/AppContext';
-import { fakerator } from './index.test';
 import { IGarageFactory } from '../src/factory/IGarageFactory';
 import { IVehicleFactory } from '../src/factory/IVehicleFactory';
+import { getDbConnection } from '../src/utility/getDbConnection';
+var Fakerator = require("fakerator");
+
+export const fakerator = Fakerator("en-AU"); // cuz there's not one for en-US
+
 
 export async function createTestGarage() {
   const factory: IGarageFactory = AppContext.getGarageFactory()
@@ -130,4 +134,15 @@ export async function testSingleVehicleParkingInSpot(vehicleType: VehicleType, l
   expect(updatedOccupiedSpots.length).toBe(expectedOccupiedSpotsAfterParking);
 
   return { garageFactory, vehicleFact, garage, vehicle }
+}
+
+export async function cleanDatabase() {
+  const db = await getDbConnection();
+  // .clear() translates to "truncate", and doens't work in postgres because foreign key exists, even though it's set to "oncascade: delete"
+  const garageRepo = await db.getRepository(Garage);
+  await garageRepo.query('DELETE FROM public."Garage"');
+
+  const vehicleRepo = await db.getRepository(Vehicle);
+  await vehicleRepo.query('DELETE FROM public."Vehicle"');
+
 }
